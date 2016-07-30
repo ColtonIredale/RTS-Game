@@ -13,11 +13,41 @@ public class MapMaker : MonoBehaviour
     public int mapHeight;
     public int mapLength;
 
+    Lakes[] lakes;
+    RandomGen lakePieces = new RandomGen(10, 15);
+    RandomGen lakeXCoord = new RandomGen(5, 45);
+    RandomGen lakeZCoord = new RandomGen(5, 45);
+    RandomGen lakeLength = new RandomGen(2, 5);
+    RandomGen lakeWidth = new RandomGen(2, 5);
     // Use this for initialization
     void Start()
     {
         AssignGrid();
+        GenerateLakes();
         CreateGrid();
+    }
+    void GenerateLakes()
+    {
+        lakes = new Lakes[lakePieces.Randomize];
+
+
+        for (int i = 0; i < lakes.Length; i++)
+        {
+            lakes[i] = new Lakes();
+            lakes[i].SetUpLakes(lakeXCoord.Randomize, lakeZCoord.Randomize, lakeLength.Randomize, lakeWidth.Randomize);
+
+            for (int x = 0; x < lakes[i].lakeLength; x++)
+            {
+                int xCoord = lakes[i].xPos + x;
+
+                for (int z = 0; z < lakes[i].lakeHeight; z++)
+                {
+                    int zCoord = lakes[i].zPos + z;
+                    tiles[xCoord][zCoord] = TileType.Water;
+                }
+            }
+        }
+
     }
     void AssignGrid()
     {
@@ -26,6 +56,7 @@ public class MapMaker : MonoBehaviour
         for (int i = 0; i < mapHeight; i++)
         {
             tiles[i] = new TileType[mapHeight];
+       
 
         }
         //Assigns the tiles array to the specified length and width.
@@ -47,10 +78,18 @@ public class MapMaker : MonoBehaviour
                 float xOffset = (x * 2f);
                 float zOffset = (z * 2f);
                 Vector3 position = new Vector3(xOffset, 0, zOffset);
-
-                GameObject mapTile = Instantiate(floortype[0], position, Quaternion.identity) as GameObject;
-                mapTile.transform.parent = this.transform;
-                mapTile.name = "maptile" + i + j;
+                if (tiles[i][j] == TileType.Water)
+                {
+                    GameObject mapTile = Instantiate(floortype[1], position, Quaternion.identity) as GameObject;
+                    mapTile.transform.parent = this.transform;
+                    mapTile.name = "maptile" + i + j;
+                }
+                else
+                {
+                    GameObject mapTile = Instantiate(floortype[0], position, Quaternion.identity) as GameObject;
+                    mapTile.transform.parent = this.transform;
+                    mapTile.name = "maptile" + i + j;
+                }
 
             }
         }
